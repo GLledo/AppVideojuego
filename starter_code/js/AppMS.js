@@ -7,7 +7,9 @@ const AppMS = {
     framesCounter: 0,
     keys: {
         TOP_KEY: 38,
-        SPACE: 32
+        SPACE: 32,
+        LEFT: 37,
+        RIGHT: 39
       },
 
       init() {
@@ -52,7 +54,7 @@ const AppMS = {
 
       drawAll() {
         this.background.draw();
-        this.player.draw();
+        this.player.draw(this.framesCounter);
         // this.obstacles.forEach(obs => obs.draw());
         // this.drawScore();
       },

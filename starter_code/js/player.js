@@ -15,17 +15,18 @@ class player  {
         this.posY = this.gameHeight * 0.95 - this.height;
 
         this.keys = keys;
+        this.velX = 8
 
         this.bullets = []; //Array de balas
 
-        this.image.frames = 3; //Indicamos el numero de frames que tiene la imagen POSIBLEMENTE LE TENGAS QUE CAMBIAR
+        this.image.frames = 4; //Indicamos el numero de frames que tiene la imagen POSIBLEMENTE LE TENGAS QUE CAMBIAR
         this.image.framesIndex = 0; //Frame actual menos 1, lo usaremos para recortar la imagen en drawImage
 
         this.setListeners();
     }
 
     draw(framesCounter) {
-        // Hacer el if para comporbar que esta haciendo el player
+        // Hacer el if para comprobar que esta haciendo el player
         // this.ctx.drawImage(
         //   this.image,
         //   this.image.framesIndex * Math.floor(this.image.width / this.image.frames), //Punto x donde empieza a recortar
@@ -37,13 +38,12 @@ class player  {
         //   this.width,
         //   this.height
         // )
-        
         // this.animate(framesCounter); //Funcion que anima los frames.
-
-        // this.bullets.forEach(bullet => bullet.draw()); //El player dibuja las balas.
-
-
+        //Imagen de base
         this.ctx.drawImage(this.image, this.posX, this.posY, this.width, this.height)
+        this.setListeners(framesCounter)
+
+        //this.animate(frames); //Funcion que anima los frames.
 
         this.bullets.forEach(bullet => bullet.draw()); //El player dibuja las balas.
     }
@@ -52,7 +52,7 @@ class player  {
         let gravity = 0.4;
     
         if (this.posY <= this.posY0) {
-          //COmprobamos que el player nunca sobrepase el suelo.
+          //Comprobamos que el player nunca sobrepase el suelo.
     
           this.posY += this.velY;
           this.velY += gravity;
@@ -65,12 +65,21 @@ class player  {
         //this.bullets.forEach(bullet => bullet.move()); //Movemos las balas
       }
       shoot() {
-        console.log("EYYY")
         //Instanciamos nuevas balas
-        this.bullets.push(new Bullet(this.ctx, this.posX, this.posY, this.posY0, this.height))
+        this.bullets.push(new Bullet(this.ctx, this.posX, this.posY, this.posY0, this.height,this.width))
+        
     }
 
-    setListeners() {
+    animate(framesCounter) {
+      if (framesCounter % 5 == 0) {
+        this.image.framesIndex++; //Cambiamos el frame de la imagen cada 5 fps.
+        if (this.image.framesIndex > 3) {
+          this.image.framesIndex = 0;
+        }
+      }
+    }
+
+    setListeners(frames) {
         document.onkeydown = e => {
           switch (e.keyCode) {
             case this.keys.TOP_KEY:
@@ -83,6 +92,27 @@ class player  {
             case this.keys.SPACE:
               this.shoot(); //Funcion de disparo
               break;
+            case this.keys.RIGHT:
+              //Movimiento
+              this.posX += this.velX
+              //pintar img andando
+              // this.image.src="./images/Mover.png",
+              // this.ctx.drawImage(
+              //   this.image,
+              //   this.image.framesIndex * Math.floor(this.image.width / this.image.frames), //Punto x donde empieza a recortar
+              //    0, //Punto y donde empieza a recortar
+              //   Math.floor(this.image.width / this.image.frames), //Punto x donde termina de recortar
+              //   this.image.height, //Punto y donde termina de recortar
+              //   this.posX,
+              //   this.posY,
+              //   this.width,
+              //   this.height)
+
+              break;
+            case this.keys.LEFT:
+              this.posX -= this.velX
+              break;
+            
           }
         };
       }
