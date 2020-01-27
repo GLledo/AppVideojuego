@@ -1,5 +1,5 @@
 class Bullet {
-  constructor( ctx, x, y, y0, playerH,playerW) {
+  constructor( ctx, x, y, y0, playerH,playerW, color) {
     this.ctx = ctx
     this.posX = x;
     this.posY = y;
@@ -9,14 +9,15 @@ class Bullet {
     this.radius = 5;
     this.velX = 10;
     this.velY = 1;
+    this.color = color
 
     this.gravity = 0.25;
   }
 
   draw() {        //DIbujamos las balas con un arco
     this.ctx.beginPath()
-    this.ctx.fillStyle = "red";
-    this.ctx.arc(this.posX + this.playerWidth, this.posY + this.playerHeight/3, this.radius + 2, 0, Math.PI * 2);
+    this.ctx.fillStyle = this.color;
+    this.ctx.arc(this.posX + this.playerWidth -3, this.posY + this.playerHeight/3 - 13, this.radius + 2, 0, Math.PI * 2);
     this.ctx.fill();
     this.ctx.closePath();
     this.move()

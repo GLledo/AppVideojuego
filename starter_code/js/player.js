@@ -1,120 +1,148 @@
 class player  {
     constructor(ctx, w, h, keys) {
-        this.ctx = ctx;
-        this.gameWidth = w;
-        this.gameHeight = h;
+        this.ctx = ctx
+        this.gameWidth = w
+        this.gameHeight = h
     
-        this.image = new Image();
-        this.image.src = "./images/quieto.png";
+        this.image = new Image()
+        this.image.src = "./images/marco.png"
     
-        this.width = 100;
-        this.height = 140;
+        this.width = 130
+        this.height = 140
 
-        this.posX = 40;
+        this.posX = 40
         this.posY0 = this.gameHeight * 0.95 - this.height; //Guardamos la posicion original para usarla como suelo
         this.posY = this.gameHeight * 0.95 - this.height;
 
-        this.keys = keys;
+        this.keys = keys
         this.velX = 8
+        this.directions = {
+          top: false,
+          right: false,
+          left: false,
+          space: false
+        }
 
-        this.bullets = []; //Array de balas
+        this.health = 500
 
-        this.image.frames = 4; //Indicamos el numero de frames que tiene la imagen POSIBLEMENTE LE TENGAS QUE CAMBIAR
-        this.image.framesIndex = 0; //Frame actual menos 1, lo usaremos para recortar la imagen en drawImage
+        this.bullets = [] //Array de balas
 
-        this.setListeners();
+        this.image.frames = 9 //Indicamos el numero de frames que tiene la imagen POSIBLEMENTE LE TENGAS QUE CAMBIAR
+        this.image.framesIndex = 0 //Frame actual menos 1, lo usaremos para recortar la imagen en drawImage
+
+        this.setListeners()
     }
 
-    draw(framesCounter) {
-        // Hacer el if para comprobar que esta haciendo el player
-        // this.ctx.drawImage(
-        //   this.image,
-        //   this.image.framesIndex * Math.floor(this.image.width / this.image.frames), //Punto x donde empieza a recortar
-        //   0, //Punto y donde empieza a recortar
-        //   Math.floor(this.image.width / this.image.frames), //Punto x donde termina de recortar
-        //   this.image.height, //Punto y donde termina de recortar
-        //   this.posX,
-        //   this.posY,
-        //   this.width,
-        //   this.height
-        // )
-        // this.animate(framesCounter); //Funcion que anima los frames.
-        //Imagen de base
-        this.ctx.drawImage(this.image, this.posX, this.posY, this.width, this.height)
-        this.setListeners(framesCounter)
-
-        //this.animate(frames); //Funcion que anima los frames.
-
-        this.bullets.forEach(bullet => bullet.draw()); //El player dibuja las balas.
+    draw() {
+      
+        this.ctx.drawImage(
+          this.image,
+          this.image.framesIndex * Math.floor(this.image.width / this.image.frames), //Punto x donde empieza a recortar
+          0, //Punto y donde empieza a recortar
+          Math.floor(this.image.width / this.image.frames), //Punto x donde termina de recortar
+          this.image.height, //Punto y donde termina de recortar
+          this.posX,
+          this.posY,
+          this.width,
+          this.height
+        )
+      
+        this.bullets.forEach(bullet => bullet.draw()) //El player dibuja las balas.
     }
 
-    move() {
+    move(framesCounter) {
+     
         let gravity = 0.4;
-    
+        if (this.directions.right === true){
+          if (this.posX < 1770){
+            this.posX += this.velX
+            this.animate(framesCounter,6,0)
+          }
+        }
+        if (this.directions.left === true){
+          if (this.posX >= 0 ){
+            this.posX -= this.velX
+            this.animate(framesCounter,6,0)
+          }
+        }
         if (this.posY <= this.posY0) {
           //Comprobamos que el player nunca sobrepase el suelo.
-    
-          this.posY += this.velY;
-          this.velY += gravity;
+          this.posY += this.velY
+          this.velY += gravity 
         } else {
           //Si lo hace reseteamos posición y velocidad
           this.velY = 1;
           this.posY = this.posY0;
         }
+        if(this.directions.space === true){
+          this.shoot(); //Funcion de disparo
+          this.animate(framesCounter,8,7)
+        }
     
         //this.bullets.forEach(bullet => bullet.move()); //Movemos las balas
-      }
-      shoot() {
+    }
+
+    shoot() {
         //Instanciamos nuevas balas
-        this.bullets.push(new Bullet(this.ctx, this.posX, this.posY, this.posY0, this.height,this.width))
+        this.bullets.push(new Bullet(this.ctx, this.posX, this.posY, this.posY0, this.height,this.width, "orange"))
         
     }
 
-    animate(framesCounter) {
-      if (framesCounter % 5 == 0) {
+    animate(framesCounter,num,resetIndex) {
+      if (framesCounter % 10 == 0) {
         this.image.framesIndex++; //Cambiamos el frame de la imagen cada 5 fps.
-        if (this.image.framesIndex > 3) {
-          this.image.framesIndex = 0;
+        if (this.image.framesIndex > num) {
+          this.image.framesIndex = resetIndex;
         }
       }
     }
 
-    setListeners(frames) {
+    setListeners() {
         document.onkeydown = e => {
           switch (e.keyCode) {
             case this.keys.TOP_KEY:
               if (this.posY >= this.posY0) {
                 //Comprobamos que el player este en el suelo antes de saltar
-                this.posY -= 30; //Añadimos algo de velocidad al salto para generar el efecto de suavidad y que la gravedad no tire directamente de él
-                this.velY -= 10;
+                this.posY -= 50; //Añadimos algo de velocidad al salto para generar el efecto de suavidad y que la gravedad no tire directamente de él
+                this.velY -= 10; 
               }
               break;
             case this.keys.SPACE:
-              this.shoot(); //Funcion de disparo
+              this.directions.space = true
+              this.image.framesIndex = 7
               break;
             case this.keys.RIGHT:
+              this.directions.right = true
               //Movimiento
-              this.posX += this.velX
-              //pintar img andando
-              // this.image.src="./images/Mover.png",
-              // this.ctx.drawImage(
-              //   this.image,
-              //   this.image.framesIndex * Math.floor(this.image.width / this.image.frames), //Punto x donde empieza a recortar
-              //    0, //Punto y donde empieza a recortar
-              //   Math.floor(this.image.width / this.image.frames), //Punto x donde termina de recortar
-              //   this.image.height, //Punto y donde termina de recortar
-              //   this.posX,
-              //   this.posY,
-              //   this.width,
-              //   this.height)
-
               break;
             case this.keys.LEFT:
-              this.posX -= this.velX
+              this.directions.left = true
               break;
             
           }
         };
+        document.onkeyup = e => {
+          switch (e.keyCode){
+            case this.keys.RIGHT:
+              this.directions.right = false
+              break;
+            case this.keys.LEFT:
+              this.directions.left = false
+              break;
+            case this.keys.SPACE:
+              this.directions.space = false
+              this.image.framesIndex = 0
+              break
+          }
+        }
       }
-
+      
+      life(dmg){
+        this.health -= dmg
+        if (this.health <= 0){
+          return true
+        }else{
+          return false
+        }
+      }
 }

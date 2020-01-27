@@ -1,3 +1,3 @@
 window.onload = () => {
-    AppMS.init()
+    appMS.init()
     }
