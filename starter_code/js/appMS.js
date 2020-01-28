@@ -6,7 +6,7 @@ const appMS = {
     fps: 60,
     framesCounter: 0,
     zombies: [],
-    plataformas: [],
+    platforms: [],
     keys: {
         TOP_KEY: 38,
         SPACE: 32,
@@ -14,6 +14,8 @@ const appMS = {
         RIGHT: 39
       },
     killed: 0,
+    findPlatform: undefined
+    ,
 
       init() {
         this.canvas = document.getElementById("canvas")
@@ -39,15 +41,18 @@ const appMS = {
             //Pintar y mover
             this.drawAll()
             this.moveAll()
+        
 
-            this.generateZombies()
+            // this.generateZombies()
             this.clearBullets() //limpiamos las balas
             this.clearObstacles() // Limpiamos del array de zombies los que salgan de la pantalla
 
             //Colisiones
             this.isCollisionBulletsZombies()
+            this.isCollisionPlatform()
+            //console.log(this.isCollisionPlatform())
             if (this.isCollision()) {
-              if(this.player.life(10)){
+              if(this.player.life(10,this.framesCounter)){
                 this.gameOver()
               }
             } // Comprobamos colisiones
@@ -59,7 +64,12 @@ const appMS = {
         //reset del game
         this.background = new Background(this.ctx, this.width, this.height)
         this.player = new player(this.ctx, this.canvas.width, this.canvas.height, this.keys)
-        this.plataforma = new Plataforma (this.ctx, this.posX, this.posY, this.posY0, this.height,this.width)
+        this.platform = new platform (this.ctx,this.height,this.width,30,200,200,750)
+        this.platform1 = new platform (this.ctx,this.height,this.width,30,200,500,700)
+        this.platform2 = new platform (this.ctx,this.height,this.width,30,200,800,600)
+
+        //Metemos las plataformas en un array
+        this.platforms.push(this.platform,this.platform1,this.platform2)
         // this.scoreboard = ScoreBoard;
         // this.scoreboard.init(this.ctx);
         // this.score = 0;
@@ -71,10 +81,14 @@ const appMS = {
       },
 
       drawAll() {
+
         this.background.draw()
-        this.player.draw()
-        this.plataforma.draw()
+        this.player.draw() 
+        this.platform.draw()
         this.zombies.forEach(obs => obs.draw(this.framesCounter));
+        this.platform.draw()
+        this.platform1.draw()
+        this.platform2.draw()
         // this.drawScore();
       },
 
@@ -87,10 +101,12 @@ const appMS = {
       },
 
       generateZombies() {
+
+        //generamos de momento 10 zombies
         if (this.zombies.length < 10){ 
           if (this.framesCounter % 200 == 0) {
-            //Generamos obstaculos cada 70 frames.
-            console.log(this.zombies);
+            //Generamos obstaculos cada 200 frames.
+            
             this.zombies.push(new Zombie(this.ctx, this.canvas.width, this.player.posY0, this.player.height)); //pusheamos nuevos obstaculos
           }
         }
@@ -114,8 +130,9 @@ const appMS = {
         })
       },
       
+      // Colision de balas con los zombies
       isCollisionBulletsZombies(){
-
+    
         this.zombies.forEach((zom, idz) =>{
           this.player.bullets.forEach((bul , idb) =>{
               if (zom.posX + zom.width >= bul.posX && zom.posY + zom.height >= bul.posY && zom.posX <= bul.posX + 6.14){
@@ -133,15 +150,39 @@ const appMS = {
          
       },
 
+      // funcion para comprobar colisiones entre el player y los zombies
       isCollision() {
-        // funcion para comprobar colisiones
-
+        
         return this.zombies.some(
           obs =>
             this.player.posX + this.player.width >= obs.posX &&
             this.player.posY + this.player.height >= obs.posY &&
-            this.player.posX <= obs.posX + obs.width
+            this.player.posX <= obs.posX + obs.width &&
+            this.player.posY <= obs.posY + obs.height
         )
+      },
+
+      isCollisionPlatform() {
+        
+        let findPlatform = this.platforms.find(
+          obs =>
+            this.player.posX + this.player.width - 30 >= obs.posX &&
+            this.player.posY + this.player.height >= obs.posY - 20 &&
+            this.player.posX <= obs.posX + obs.width - 30 &&
+            this.player.posY + this.player.height - 10 <= obs.posY + obs.height  &&
+            this.player.velY > 1
+        )
+       
+
+        if (findPlatform ){
+
+          this.player.obj = findPlatform
+          this.player.posY0 = findPlatform.posY - this.player.height
+          this.player.posY = this.player.posY0
+        }
+        else{
+          this.player.posY0 = this.height * 0.95 - this.player.height;
+        }
       },
 
       generateZombies() {
