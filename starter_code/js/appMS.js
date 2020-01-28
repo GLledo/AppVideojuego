@@ -7,6 +7,7 @@ const appMS = {
     framesCounter: 0,
     zombies: [],
     platforms: [],
+    bulletBoss: [],
     keys: {
         TOP_KEY: 38,
         SPACE: 32,
@@ -44,13 +45,15 @@ const appMS = {
         
 
             // this.generateZombies()
+            
             this.clearBullets() //limpiamos las balas
             this.clearObstacles() // Limpiamos del array de zombies los que salgan de la pantalla
 
             //Colisiones
             this.isCollisionBulletsZombies()
             this.isCollisionPlatform()
-            //console.log(this.isCollisionPlatform())
+
+            
             if (this.isCollision()) {
               if(this.player.life(10,this.framesCounter)){
                 this.gameOver()
@@ -64,12 +67,14 @@ const appMS = {
         //reset del game
         this.background = new Background(this.ctx, this.width, this.height)
         this.player = new player(this.ctx, this.canvas.width, this.canvas.height, this.keys)
-        this.platform = new platform (this.ctx,this.height,this.width,30,200,200,750)
-        this.platform1 = new platform (this.ctx,this.height,this.width,30,200,500,700)
-        this.platform2 = new platform (this.ctx,this.height,this.width,30,200,800,600)
+        this.platforms = [
+          new platform (this.ctx,this.height,this.width,30,200,200,700),
+          new platform (this.ctx,this.height,this.width,30,200,500,700),
+          new platform (this.ctx,this.height,this.width,30,200,800,600)]
 
+        this.boss = new boss(this.ctx, this.width, this.height)
+        this.bulletBoss = new bulletBoss (this.ctx, this.boss.posY,this.boss.posX,this.posY0,this.boss.height, this.boss.width , "red")
         //Metemos las plataformas en un array
-        this.platforms.push(this.platform,this.platform1,this.platform2)
         // this.scoreboard = ScoreBoard;
         // this.scoreboard.init(this.ctx);
         // this.score = 0;
@@ -81,21 +86,22 @@ const appMS = {
       },
 
       drawAll() {
-
         this.background.draw()
         this.player.draw() 
-        this.platform.draw()
         this.zombies.forEach(obs => obs.draw(this.framesCounter));
-        this.platform.draw()
-        this.platform1.draw()
-        this.platform2.draw()
+        
+        this.platforms.forEach(platformsArr =>{
+          platformsArr.draw()
+        })
+
+        this.boss.draw(this.framesCounter)
+        this.bulletBoss.draw()
         // this.drawScore();
       },
 
       moveAll() {
         
         this.player.move(this.framesCounter)
-
         this.zombies.forEach(obs => obs.move())
 
       },
@@ -104,10 +110,9 @@ const appMS = {
 
         //generamos de momento 10 zombies
         if (this.zombies.length < 10){ 
-          if (this.framesCounter % 200 == 0) {
+          if (this.framesCounter % 120 == 0) {
             //Generamos obstaculos cada 200 frames.
-            
-            this.zombies.push(new Zombie(this.ctx, this.canvas.width, this.player.posY0, this.player.height)); //pusheamos nuevos obstaculos
+            this.zombies.push(new Zombie(this.ctx, this.canvas.width,this.canvas.height)); //pusheamos nuevos obstaculos
           }
         }
       },
@@ -165,15 +170,15 @@ const appMS = {
       isCollisionPlatform() {
         
         let findPlatform = this.platforms.find(
-          obs =>
-            this.player.posX + this.player.width - 30 >= obs.posX &&
-            this.player.posY + this.player.height >= obs.posY - 20 &&
-            this.player.posX <= obs.posX + obs.width - 30 &&
-            this.player.posY + this.player.height - 10 <= obs.posY + obs.height  &&
-            this.player.velY > 1
+          obs => {
+           return (this.player.posX + this.player.width - 70 >= obs.posX &&
+                  this.player.posY + this.player.height >= obs.posY - 20 &&
+                  this.player.posX <= obs.posX + obs.width - 30 &&
+                  this.player.posY + this.player.height - 10 <= obs.posY + obs.height  &&
+                  this.player.velY > 0)
+          }
         )
        
-
         if (findPlatform ){
 
           this.player.obj = findPlatform
@@ -187,11 +192,16 @@ const appMS = {
 
       generateZombies() {
         if (this.zombies.length < 10){ 
-          if (this.framesCounter % 200 == 0) {
-            this.zombies.push(new Zombie(this.ctx, this.canvas.width, this.player.posY0, this.player.height)); //pusheamos nuevos zombies
+          if (this.framesCounter % 120 == 0) {
+            this.zombies.push(new Zombie(this.ctx, this.canvas.width,this.canvas.height)); //pusheamos nuevos zombies
           }
         }
       },
+      
+      generateBulletBoss(){
+
+      }
+      ,
 
       gameOver() {
         //Gameover detiene el juego.

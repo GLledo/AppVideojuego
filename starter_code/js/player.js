@@ -9,7 +9,7 @@ class player  {
     
         this.width = 130
         this.height = 140
-        this.velY = 10
+        this.velY = 20
         this.canJump = true
 
         this.posX = 40
@@ -53,23 +53,21 @@ class player  {
 
     move(framesCounter) {
 
-      console.log(this.posY0, this.posY)
-     
         let gravity = 0.4;
-        console.log(this.gameWidth)
+        
         if (this.directions.right && this.posX + this.width - 50 < this.gameWidth){
  
           this.posX += this.velX
             this.animate(framesCounter,6,0)
    
         }
-        if (this.directions.left === true){
+        if (this.directions.left){
           if (this.posX >= 0 ){
             this.posX -= this.velX
             this.animate(framesCounter,6,0)
           }
         }
-        if(this.directions.space === true){
+        if(this.directions.space){
           if(framesCounter % 10 == 0) this.shoot(); //Funcion de disparo
           this.animate(framesCounter,8,7)
         }
@@ -164,7 +162,7 @@ class player  {
       }
       
       life(dmg, framesCounter){
-        console.log(this.health)
+        
         if (framesCounter % 10 == 0){
           this.health -= dmg
         if (this.health <= 0){
