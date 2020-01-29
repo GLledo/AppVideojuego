@@ -75,10 +75,10 @@ class player  {
 
 
         // if (this.posY >= this.posY0) {
-          //   //Comprobamos que el player este en el suelo antes de saltar
-          //   this.posY -= this.velY; //Añadimos algo de velocidad al salto para generar el efecto de suavidad y que la gravedad no tire directamente de él
-          //   this.velY -= 10; 
-          // }
+        //     //Comprobamos que el player este en el suelo antes de saltar
+        //     this.posY -= 30; //Añadimos algo de velocidad al salto para generar el efecto de suavidad y que la gravedad no tire directamente de él
+        //     this.velY -= 10; 
+        //   }
          
         if(this.directions.top && this.canJump) {
           this.canJump = false
@@ -87,7 +87,7 @@ class player  {
         }
 
 
-        if (this.posY <= this.posY0) {
+        if (this.posY < this.posY0) {
           //Comprobamos que el player nunca sobrepase el suelo.
           this.posY += this.velY
           this.velY += gravity 
@@ -121,12 +121,17 @@ class player  {
           switch (e.keyCode) {
             case this.keys.TOP_KEY:
               this.directions.top = true
-              this.move()
               // if (this.posY >= this.posY0) {
               //   //Comprobamos que el player este en el suelo antes de saltar
               //   this.posY -= this.velY; //Añadimos algo de velocidad al salto para generar el efecto de suavidad y que la gravedad no tire directamente de él
               //   this.velY -= 10; 
               // }
+              // if (this.posY >= this.posY0) {
+              //   //COmprobamos que el player este en el suelo antes de saltar
+              //   this.posY -= 30; //Añadimos algo de velocidad al salto para generar el efecto de suavidad y que la gravedad no tire directamente de él
+              //   this.velY -= 10;
+              // }
+              this.move()
               break;
             case this.keys.SPACE:
               this.directions.space = true
@@ -161,15 +166,15 @@ class player  {
         }
       }
       
-      life(dmg, framesCounter){
+      life(dmg,framesCounter){
         
         if (framesCounter % 10 == 0){
           this.health -= dmg
-        if (this.health <= 0){
-          return true
-        }else{
-          return false
-        }
+          if (this.health <= 0){
+            return true
+          }else{
+            return false
+          }
         }
       }
 }

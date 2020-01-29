@@ -6,9 +6,9 @@ const appMS = {
     fps: 60,
     framesCounter: 0,
     zombies: [],
+    score: 0,
     platforms: [],
-    bulletBoss: [],
-    keys: {
+        keys: {
         TOP_KEY: 38,
         SPACE: 32,
         LEFT: 37,
@@ -32,20 +32,25 @@ const appMS = {
         this.reset()
         this.interval = setInterval(()=>{
             // Intervalo de frames
+            this.clear()
             this.framesCounter++ //Contador de frames
-
+            
+            if (this.framesCounter % 40 == 0){
+              this.score++
+            }
             // controlamos que frameCounter no sea superior a 1000
             if (this.framesCounter > 1000) this.framesCounter = 0
 
-            this.clear()
-
+            if (this.killed >= 10){
+              this.boss.generateBulletBoss(this.framesCounter)
+            }
             //Pintar y mover
             this.drawAll()
             this.moveAll()
-        
 
-            // this.generateZombies()
-            
+
+            if (this.killed < 10)this.generateZombies()
+
             this.clearBullets() //limpiamos las balas
             this.clearObstacles() // Limpiamos del array de zombies los que salgan de la pantalla
 
@@ -68,12 +73,12 @@ const appMS = {
         this.background = new Background(this.ctx, this.width, this.height)
         this.player = new player(this.ctx, this.canvas.width, this.canvas.height, this.keys)
         this.platforms = [
-          new platform (this.ctx,this.height,this.width,30,200,200,700),
+          new platform (this.ctx,this.height,this.width,30,200,200,770),
           new platform (this.ctx,this.height,this.width,30,200,500,700),
           new platform (this.ctx,this.height,this.width,30,200,800,600)]
 
-        this.boss = new boss(this.ctx, this.width, this.height)
-        this.bulletBoss = new bulletBoss (this.ctx, this.boss.posY,this.boss.posX,this.posY0,this.boss.height, this.boss.width , "red")
+        this.boss = new boss(this.ctx, this.width, this.height,this.score)
+        
         //Metemos las plataformas en un array
         // this.scoreboard = ScoreBoard;
         // this.scoreboard.init(this.ctx);
@@ -94,9 +99,8 @@ const appMS = {
           platformsArr.draw()
         })
 
-        this.boss.draw(this.framesCounter)
-        this.bulletBoss.draw()
-        // this.drawScore();
+        if (this.killed >= 10)this.boss.draw(this.framesCounter)
+        //this.drawScore();
       },
 
       moveAll() {
@@ -104,13 +108,14 @@ const appMS = {
         this.player.move(this.framesCounter)
         this.zombies.forEach(obs => obs.move())
 
+        if (this.killed >= 10)this.boss.move(this.score)
+
       },
 
       generateZombies() {
-
         //generamos de momento 10 zombies
         if (this.zombies.length < 10){ 
-          if (this.framesCounter % 120 == 0) {
+          if (this.framesCounter % 200 == 0) {
             //Generamos obstaculos cada 200 frames.
             this.zombies.push(new Zombie(this.ctx, this.canvas.width,this.canvas.height)); //pusheamos nuevos obstaculos
           }
@@ -134,13 +139,22 @@ const appMS = {
           }
         })
       },
-      
+
+      isCollisionBoss(){
+          //return this.player.bullets.some()
+      },
+
       // Colision de balas con los zombies
       isCollisionBulletsZombies(){
-    
+        
         this.zombies.forEach((zom, idz) =>{
           this.player.bullets.forEach((bul , idb) =>{
-              if (zom.posX + zom.width >= bul.posX && zom.posY + zom.height >= bul.posY && zom.posX <= bul.posX + 6.14){
+                
+                if (bul.posX + 6.14 >= zom.posX - 100 && 
+                  bul.posY + 6.14 >= zom.posY &&
+                  zom.posY + zom.height >= bul.posY && 
+                  zom.posX + zom.width >= bul.posX
+                  ){
 
                 if (zom.life()){
                   this.zombies.splice(idz,1)
@@ -174,8 +188,10 @@ const appMS = {
            return (this.player.posX + this.player.width - 70 >= obs.posX &&
                   this.player.posY + this.player.height >= obs.posY - 20 &&
                   this.player.posX <= obs.posX + obs.width - 30 &&
-                  this.player.posY + this.player.height - 10 <= obs.posY + obs.height  &&
-                  this.player.velY > 0)
+                  this.player.posY + this.player.height - 10 <= obs.posY + obs.height  
+                  // &&
+                  // this.player.velY > 1
+                  )
           }
         )
        
@@ -191,18 +207,13 @@ const appMS = {
       },
 
       generateZombies() {
-        if (this.zombies.length < 10){ 
-          if (this.framesCounter % 120 == 0) {
+        if (this.zombies.length < 11){ 
+          if (this.framesCounter % 300 == 0) {
             this.zombies.push(new Zombie(this.ctx, this.canvas.width,this.canvas.height)); //pusheamos nuevos zombies
           }
         }
       },
       
-      generateBulletBoss(){
-
-      }
-      ,
-
       gameOver() {
         //Gameover detiene el juego.
         alert("Has muerto PUTO PACO, pero has matado a " + this.killed)

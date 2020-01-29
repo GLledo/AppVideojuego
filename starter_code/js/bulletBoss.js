@@ -1,37 +1,46 @@
 class bulletBoss {
-    constructor( ctx,y,x,y0,bossH,bossW,color) {
+    constructor( ctx, x, y, y0, bossH,bossW,gameH) {
       this.ctx = ctx
       this.posX = x;
       this.posY = y;
       this.posY0 = y0
+      this.width = 100
+      this.height = 100
+      this.gameH = gameH
       
       this.bossH = bossH
       this.bossW = bossW
 
-      this.radius = 5;
+     
       this.velX = 10;
       this.velY = 1;
-      this.color = color
+    
+
+      this.image = new Image()
+      this.image.src = "./images/bulletBoss.png"
   
       this.gravity = 0.25;
     }
   
     draw() {//Dibujamos las balas con un arco
-      this.ctx.beginPath()
-      this.ctx.fillStyle = this.color;
-      this.ctx.arc(this.posX, this.posY + this.bossW - 200, this.radius + 50, 0, Math.PI * 2,this.color);
-      this.ctx.fill();
-      this.ctx.closePath();
-      this.move()
+      // this.ctx.beginPath()
+      // this.ctx.fillStyle = this.color;
+      // this.ctx.arc(this.posX, this.posY + this.bossW - 200, this.radius + 10, 0, Math.PI * 2,this.color);
+      // this.ctx.fill();
+      // this.ctx.closePath();
+      // this.move()
+
+      this.ctx.drawImage(this.image, this.posX - this.width, this.posY + this.bossW - 150, this.width, this.height)
+      //this.move()
     }
   
     move() {
       this.posX -= this.velX        
-      this.posY += this.velY        //Añadimos velY linear para que caigan
-      this.velY += this.gravity     //Modificamos la velY para generar el efecto gravedad
+      this.posY += this.velY //Añadimos velY linear para que caigan
+      this.velY += this.gravity//Modificamos la velY para generar el efecto gravedad
   
-      if(this.posY <= this.bossH/2 + this.posY0){
-        this.velY *= -1   //Si llegan al suelo invertimos su velocidad para que "reboten"
+      if(this.posY >= this.gameH - this.height){
+        this.velY *= -1
       }
     }
 }
