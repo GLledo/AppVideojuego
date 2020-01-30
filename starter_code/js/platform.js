@@ -1,4 +1,4 @@
-class platform {
+class Platform {
     constructor(ctx, playerH,playerW,h,w,x,y){
         
         this.ctx = ctx

@@ -1,4 +1,4 @@
-class boss {
+class Boss {
     constructor(ctx, canvasW, gameH) {
         this.ctx = ctx
         this.width = 200
@@ -7,7 +7,7 @@ class boss {
         this.posX = canvasW - this.width
   
         this.gameH = gameH
-        this.posY = this.gameH * 0.98 - this.height //770
+        this.posY = 0 //770
         this.velY = 2
 
         this.health = 100
@@ -20,7 +20,7 @@ class boss {
         this.image.frames = 14; //Indicamos el numero de frames que tiene la imagen
         this.image.framesIndex = 0; //Frame actual menos 1, lo usaremos para recortar la imagen en drawImage
 
-        this.health = 1000
+        this.health = 500
         
       }
 
@@ -51,7 +51,7 @@ class boss {
         }
       }
 
-      move(framesCounter){
+      move(){
         this.posY += this.velY
 
         if(this.posY >= this.gameH - this.height){
@@ -63,21 +63,18 @@ class boss {
         this.bulletBoss.forEach(bullet => bullet.move())
       }
 
-      life(dmg,framesCounter){
-        
-        if (framesCounter % 10 == 0){
-          this.health -= dmg
-          if (this.health <= 0){
-            return true
-          }else{
-            return false
-          }
+      life(){
+        this.health -= 10
+        if (this.health <= 0){
+          return true
+        }else{
+          return false
         }
       }
 
       generateBulletBoss(framesCounter){
-        console.log(framesCounter)
-        if (framesCounter % 120 == 0)this.bulletBoss.push(new bulletBoss(this.ctx, this.posX, this.posY, this.posY0, this.height,this.width,this.gameH))
+        
+        if (framesCounter % 160 == 0)this.bulletBoss.push(new bulletBoss(this.ctx, this.posX, this.posY, this.posY0, this.height,this.width,this.gameH))
          
       }
 }

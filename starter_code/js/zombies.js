@@ -50,7 +50,7 @@ class Zombie {
       }
 
       life(){
-        this.health -= 100
+        this.health -= 50
         if (this.health <= 0){
           return true
         }else{

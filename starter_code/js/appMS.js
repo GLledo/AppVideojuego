@@ -48,9 +48,9 @@ const appMS = {
             this.drawAll()
             this.moveAll()
 
-
             if (this.killed < 10)this.generateZombies()
 
+            this.clearBulletsBoss() 
             this.clearBullets() //limpiamos las balas
             this.clearObstacles() // Limpiamos del array de zombies los que salgan de la pantalla
 
@@ -58,12 +58,22 @@ const appMS = {
             this.isCollisionBulletsZombies()
             this.isCollisionPlatform()
 
-            
+            if (this.isCollisionBoss()){
+              if(this.boss.life()){
+                this.gameOver(false,true)
+              }
+            }
+            if (this.isCollisionBulletBossPlayer()){
+              if(this.player.life(100,this.framesCounter)){
+                this.gameOver(true,false)
+              }
+            }
             if (this.isCollision()) {
-              if(this.player.life(10,this.framesCounter)){
-                this.gameOver()
+              if(this.player.life(50,this.framesCounter)){
+                this.gameOver(true,false)
               }
             } // Comprobamos colisiones
+            this.music.play()
             
         }, 1000 / this.fps)
       },
@@ -71,15 +81,19 @@ const appMS = {
       reset() {
         //reset del game
         this.background = new Background(this.ctx, this.width, this.height)
-        this.player = new player(this.ctx, this.canvas.width, this.canvas.height, this.keys)
+        this.player = new Player(this.ctx, this.canvas.width, this.canvas.height, this.keys)
+        this.lives = new Lives (this.ctx, this.canvas.width,this.canvas.height)
         this.platforms = [
-          new platform (this.ctx,this.height,this.width,30,200,200,770),
-          new platform (this.ctx,this.height,this.width,30,200,500,700),
-          new platform (this.ctx,this.height,this.width,30,200,800,600)]
+          new Platform (this.ctx,this.height,this.width,30,200,200,770),
+          new Platform (this.ctx,this.height,this.width,30,200,500,700),
+          new Platform (this.ctx,this.height,this.width,30,100,200,400),
+          new Platform (this.ctx,this.height,this.width,30,150,500,450),
+          new Platform (this.ctx,this.height,this.width,30,50,800,300),
+          new Platform (this.ctx,this.height,this.width,30,140,800,600)]
 
-        this.boss = new boss(this.ctx, this.width, this.height,this.score)
+        this.boss = new Boss(this.ctx, this.width, this.height,this.score)
+        this.music = new Music("./music/MSlug.mp3")
         
-        //Metemos las plataformas en un array
         // this.scoreboard = ScoreBoard;
         // this.scoreboard.init(this.ctx);
         // this.score = 0;
@@ -95,6 +109,7 @@ const appMS = {
         this.player.draw() 
         this.zombies.forEach(obs => obs.draw(this.framesCounter));
         
+        this.lives.draw(this.player.health)
         this.platforms.forEach(platformsArr =>{
           platformsArr.draw()
         })
@@ -140,11 +155,36 @@ const appMS = {
         })
       },
 
-      isCollisionBoss(){
-          //return this.player.bullets.some()
+      clearBulletsBoss() {
+        this.boss.bulletBoss.forEach((bul, idx) =>{
+          if (bul.posX <= 0) {
+            this.boss.bulletBoss.splice(idx, 1);
+          }
+        })
+      },
+      isCollisionBulletBossPlayer(){
+        
+        return this.boss.bulletBoss.some(
+          obs =>
+            this.player.posX + this.player.width >= obs.posX &&
+            this.player.posY + this.player.height - 50>= obs.posY &&
+            this.player.posX <= obs.posX + obs.width &&
+            this.player.posY <= obs.posY + obs.height
+             
+        )
       },
 
-      // Colision de balas con los zombies
+      isCollisionBoss(){
+        
+          return this.player.bullets.some(
+            bul =>
+              bul.posX + 6.14 >= this.boss.posX - 100 && 
+              bul.posY + 6.14 >= this.boss.posY &&
+              this.boss.posY + this.boss.height >= bul.posY && 
+              this.boss.posX + this.boss.width >= bul.posX
+          )
+      },
+
       isCollisionBulletsZombies(){
         
         this.zombies.forEach((zom, idz) =>{
@@ -169,7 +209,6 @@ const appMS = {
          
       },
 
-      // funcion para comprobar colisiones entre el player y los zombies
       isCollision() {
         
         return this.zombies.some(
@@ -205,18 +244,14 @@ const appMS = {
           this.player.posY0 = this.height * 0.95 - this.player.height;
         }
       },
-
-      generateZombies() {
-        if (this.zombies.length < 11){ 
-          if (this.framesCounter % 300 == 0) {
-            this.zombies.push(new Zombie(this.ctx, this.canvas.width,this.canvas.height)); //pusheamos nuevos zombies
-          }
-        }
-      },
-      
-      gameOver() {
+       
+      gameOver(lost,win) {
         //Gameover detiene el juego.
-        alert("Has muerto PUTO PACO, pero has matado a " + this.killed)
+        if (lost){
+          alert("Has muerto PUTO PACO, pero has matado a " + this.killed)
+        }else if(win){
+          alert("Has ganado!! y has matado a " + this.killed)
+        }
         clearInterval(this.interval);
        },
 

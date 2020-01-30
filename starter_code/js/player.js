@@ -1,4 +1,4 @@
-class player  {
+class Player  {
     constructor(ctx, w, h, keys) {
         this.ctx = ctx
         this.gameWidth = w
@@ -25,14 +25,16 @@ class player  {
           space: false
         }
 
-        this.health = 100
+        this.health = 300
 
-        this.bullets = [] //Array de balas
+        this.bullets = [] 
 
-        this.image.frames = 9 //Indicamos el numero de frames que tiene la imagen POSIBLEMENTE LE TENGAS QUE CAMBIAR
-        this.image.framesIndex = 0 //Frame actual menos 1, lo usaremos para recortar la imagen en drawImage
+        this.image.frames = 9 
+        this.image.framesIndex = 0 
 
         this.setListeners()
+
+        
     }
 
     draw() {
@@ -49,6 +51,8 @@ class player  {
           this.height
         )
         this.bullets.forEach(bullet => bullet.draw()) //El player dibuja las balas.
+
+        
     }
 
     move(framesCounter) {
@@ -71,14 +75,6 @@ class player  {
           if(framesCounter % 10 == 0) this.shoot(); //Funcion de disparo
           this.animate(framesCounter,8,7)
         }
-
-
-
-        // if (this.posY >= this.posY0) {
-        //     //Comprobamos que el player este en el suelo antes de saltar
-        //     this.posY -= 30; //Añadimos algo de velocidad al salto para generar el efecto de suavidad y que la gravedad no tire directamente de él
-        //     this.velY -= 10; 
-        //   }
          
         if(this.directions.top && this.canJump) {
           this.canJump = false
@@ -98,7 +94,6 @@ class player  {
           this.posY = this.posY0;
         }
     
-        //this.bullets.forEach(bullet => bullet.move()); //Movemos las balas
     }
 
     shoot() {
@@ -109,7 +104,7 @@ class player  {
 
     animate(framesCounter,num,resetIndex) {
       if (framesCounter % 10 == 0) {
-        this.image.framesIndex++; //Cambiamos el frame de la imagen cada 5 fps.
+        this.image.framesIndex++; 
         if (this.image.framesIndex > num) {
           this.image.framesIndex = resetIndex;
         }
@@ -121,16 +116,6 @@ class player  {
           switch (e.keyCode) {
             case this.keys.TOP_KEY:
               this.directions.top = true
-              // if (this.posY >= this.posY0) {
-              //   //Comprobamos que el player este en el suelo antes de saltar
-              //   this.posY -= this.velY; //Añadimos algo de velocidad al salto para generar el efecto de suavidad y que la gravedad no tire directamente de él
-              //   this.velY -= 10; 
-              // }
-              // if (this.posY >= this.posY0) {
-              //   //COmprobamos que el player este en el suelo antes de saltar
-              //   this.posY -= 30; //Añadimos algo de velocidad al salto para generar el efecto de suavidad y que la gravedad no tire directamente de él
-              //   this.velY -= 10;
-              // }
               this.move()
               break;
             case this.keys.SPACE:
@@ -168,7 +153,7 @@ class player  {
       
       life(dmg,framesCounter){
         
-        if (framesCounter % 10 == 0){
+        if (framesCounter % 20 == 0){
           this.health -= dmg
           if (this.health <= 0){
             return true
