@@ -7,6 +7,7 @@ const appMS = {
     framesCounter: 0,
     zombies: [],
     score: 0,
+    boom:[],
     platforms: [],
         keys: {
         TOP_KEY: 38,
@@ -21,8 +22,8 @@ const appMS = {
       init() {
         this.canvas = document.getElementById("canvas")
         this.ctx = this.canvas.getContext("2d")
-        this.width = window.innerWidth
-        this.height = window.innerHeight * 0.99;
+        this.width = window.innerWidth 
+        this.height = window.innerHeight;
         this.canvas.width = this.width
         this.canvas.height = this.height
         this.start();     
@@ -44,6 +45,8 @@ const appMS = {
             if (this.killed >= 10){
               this.boss.generateBulletBoss(this.framesCounter)
             }
+
+            this.generateBooms()
             //Pintar y mover
             this.drawAll()
             this.moveAll()
@@ -53,26 +56,35 @@ const appMS = {
             this.clearBulletsBoss() 
             this.clearBullets() //limpiamos las balas
             this.clearObstacles() // Limpiamos del array de zombies los que salgan de la pantalla
+          
+            this.clearBooms()
+            
+            this.ctx.font = ' 100px Arial'
+            this.ctx.fillStyle = 'green'
+            this.ctx.fillText(this.killed, 480, 80)
 
             //Colisiones
             this.isCollisionBulletsZombies()
             this.isCollisionPlatform()
+            
 
             if (this.isCollisionBoss()){
               if(this.boss.life()){
                 this.gameOver(false,true)
               }
             }
-            if (this.isCollisionBulletBossPlayer()){
+            if (this.isCollisionBulletBossPlayer() ){
               if(this.player.life(100,this.framesCounter)){
                 this.gameOver(true,false)
               }
             }
-            if (this.isCollision()) {
+            if (this.isCollision() || this.isCollisionBoom()) {
               if(this.player.life(50,this.framesCounter)){
                 this.gameOver(true,false)
               }
             } // Comprobamos colisiones
+
+            //Musica
             this.music.play()
             
         }, 1000 / this.fps)
@@ -83,14 +95,18 @@ const appMS = {
         this.background = new Background(this.ctx, this.width, this.height)
         this.player = new Player(this.ctx, this.canvas.width, this.canvas.height, this.keys)
         this.lives = new Lives (this.ctx, this.canvas.width,this.canvas.height)
+        this.zombieHead = new ZombieHead(this.ctx, this.width, this.height)
+      // this.initialPos = [
+      //   [30,200,200,770]
+      // ]
         this.platforms = [
           new Platform (this.ctx,this.height,this.width,30,200,200,770),
           new Platform (this.ctx,this.height,this.width,30,200,500,700),
           new Platform (this.ctx,this.height,this.width,30,100,200,400),
           new Platform (this.ctx,this.height,this.width,30,150,500,450),
           new Platform (this.ctx,this.height,this.width,30,50,800,300),
-          new Platform (this.ctx,this.height,this.width,30,140,800,600)]
-
+          new Platform (this.ctx,this.heigbossHht,this.width,30,140,800,600)]
+        
         this.boss = new Boss(this.ctx, this.width, this.height,this.score)
         this.music = new Music("./music/MSlug.mp3")
         
@@ -108,6 +124,7 @@ const appMS = {
         this.background.draw()
         this.player.draw() 
         this.zombies.forEach(obs => obs.draw(this.framesCounter));
+        this.zombieHead.draw()
         
         this.lives.draw(this.player.health)
         this.platforms.forEach(platformsArr =>{
@@ -115,6 +132,8 @@ const appMS = {
         })
 
         if (this.killed >= 10)this.boss.draw(this.framesCounter)
+
+        this.boom.forEach(bom =>bom.draw(this.framesCounter))
         //this.drawScore();
       },
 
@@ -154,6 +173,13 @@ const appMS = {
           }
         })
       },
+      clearBooms(){
+        if (this.framesCounter % 350 === 0){
+          this.boom.pop()
+        }else if(this.framesCounter % 320 === 0){
+          this.boom.unshift()
+        }
+      },
 
       clearBulletsBoss() {
         this.boss.bulletBoss.forEach((bul, idx) =>{
@@ -170,7 +196,6 @@ const appMS = {
             this.player.posY + this.player.height - 50>= obs.posY &&
             this.player.posX <= obs.posX + obs.width &&
             this.player.posY <= obs.posY + obs.height
-             
         )
       },
 
@@ -225,7 +250,7 @@ const appMS = {
         let findPlatform = this.platforms.find(
           obs => {
            return (this.player.posX + this.player.width - 70 >= obs.posX &&
-                  this.player.posY + this.player.height >= obs.posY - 20 &&
+                  this.player.posY + this.player.height - 20>= obs.posY - 20 &&
                   this.player.posX <= obs.posX + obs.width - 30 &&
                   this.player.posY + this.player.height - 10 <= obs.posY + obs.height  
                   // &&
@@ -244,15 +269,38 @@ const appMS = {
           this.player.posY0 = this.height * 0.95 - this.player.height;
         }
       },
-       
+
+      isCollisionBoom(){
+        
+        return this.boom.some(
+          obs =>
+            this.player.posX + this.player.width - 100>= obs.posX &&
+            this.player.posY + this.player.height - 50>= obs.posY &&
+            this.player.posX <= obs.posX + obs.width &&
+            this.player.posY <= obs.posY + obs.height
+        )
+      }
+      ,
+
       gameOver(lost,win) {
         //Gameover detiene el juego.
+          
         if (lost){
-          alert("Has muerto PUTO PACO, pero has matado a " + this.killed)
+          //alert("Has muerto PUTO PACO, pero has matado a " + this.killed)
+          this.ctx.font = ' 100px Arial'
+          this.ctx.fillStyle = 'red'
+          this.ctx.fillText('HAS MUERTO ', 600, 400)
+          this.ctx.fillText('pero has matado a ' + this.killed + ' zombies', 370, 550)
         }else if(win){
-          alert("Has ganado!! y has matado a " + this.killed)
-        }
+          this.ctx.font = ' 100px Arial'
+          this.ctx.fillStyle = 'red'
+          this.ctx.fillText('HAS GANADO ', 600, 400)
+          this.ctx.fillText('y has matado a ' + this.killed + ' zombies', 370, 550)
+          }
         clearInterval(this.interval);
        },
 
+       generateBooms(){
+         if (this.boom.length < 2)if (this.framesCounter% 250 === 0)this.boom.push(new Boom (this.ctx, this.width, this.height,Math.floor(Math.random()*this.canvas.width)))
+       }
 }

@@ -1,5 +1,5 @@
 class Boom {
-    constructor(ctx, w, h){
+    constructor(ctx, w, h, x){
         this.ctx = ctx
         this.gameWidth = w
         this.gameHeight = h
@@ -7,14 +7,19 @@ class Boom {
         this.image = new Image()
         this.image.src = "./images/explo.png"
 
-        this.width = 130
-        this.height = 140
+        this.width = 100
+        this.height = 200
+
+        this.velX = 3
+
+        this.posX = x
+        this.posY = this.gameHeight * 0.96 - this.height
 
         this.image.frames = 12 
         this.image.framesIndex = 0 
     }
 
-    draw(){
+    draw(framesCounter){
 
         this.ctx.drawImage(
             this.image,
@@ -34,12 +39,9 @@ class Boom {
         if (framesCounter % 10 == 0) {
           this.image.framesIndex++; 
           if (this.image.framesIndex > 11) {
-            this.image.framesIndex = resetIndex;
+            this.image.framesIndex = 0;
           }
         }
       }
 
-    move(){
-        
-    }
 }

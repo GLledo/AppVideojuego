@@ -1,5 +1,40 @@
+
 *{
     padding: 0;
     margin: 0;
-    background-color: black;
 }
+body{
+    background-image: url(./images/bloodHP.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    font-family: 'Uncial Antiqua', cursive;
+    overflow: hidden;
+}
+
+
+
+button {
+    font-family: 'Uncial Antiqua', cursive;
+    position: absolute;
+    top: 500px; left: 700px;
+    width: 400px;
+    z-index: -100;
+    font-size: 20px;
+    background-color: black;
+    color: rgb(238, 228, 136);
+    padding: 10px 20px;
+    border: 0;
+    box-shadow: 0;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    font-size: 2em;
+}
+
+h1 {
+    position: absolute;
+    top: 250px; left: 450px;
+    z-index: -100;
+    color: rgb(238, 228, 136);
+    font-size: 7em;
+}
+
